@@ -1,7 +1,7 @@
 
 # Taller 1
 ## Introducción
-Este taller explora transformaciones geométricas (traslación, rotación y escaka) en diferentes entornos de programación. En cada herramineta, se crea una escena básica con el objeto y se aplica sobre este las transfomaciones requeridas, dentro de un ciclo de animación.
+Este taller explora transformaciones geométricas (traslación, rotación y escala) en diferentes entornos de programación. En cada herramineta, se crea una escena básica con el objeto y se aplica sobre este las transfomaciones requeridas, dentro de un ciclo de animación.
 A continuación se describe cada una de las implementaciones realizadas.
 
 ## Processing
