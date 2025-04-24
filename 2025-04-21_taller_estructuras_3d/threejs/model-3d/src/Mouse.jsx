@@ -7,10 +7,10 @@ import React from 'react'
 import { useGLTF } from '@react-three/drei'
 
 export default function Model(props) {
-  const { nodes, materials } = useGLTF('/mouse.gltf')
+  const { nodes, materials } = useGLTF('/models/little-mouse/mouse.gltf')
   return (
     <group {...props} dispose={null}>
-      <group scale={0.01}>
+      <group scale={1} rotation={[0, -0.5*Math.PI, 0]}> // Rotar para que mire al frente
         <mesh geometry={nodes.Voxelize_a1_principledshader1_0.geometry} material={materials.principledshader1} />
         <mesh geometry={nodes.Voxelize_a1_principledshader1_0_1.geometry} material={materials.principledshader1} />
       </group>
