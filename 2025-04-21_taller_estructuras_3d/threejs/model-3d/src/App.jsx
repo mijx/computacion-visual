@@ -13,10 +13,11 @@ function App() {
   return (
     <>
       <Canvas style={{ background: 'lightblue', width: '100vw', height: '100vh' }}>
-      <ambientLight />
-      <Suspense fallback={null}>
-      <Mouse scale={0.55} position={[0, -1, 0]} />
-      </Suspense>
+        <ambientLight intensity={1.8} />
+        <OrbitControls />
+        <Suspense fallback={null}>
+          <Mouse scale={0.55} position={[0, 0, 0]} />
+        </Suspense>
       </Canvas>
     </>
   )
