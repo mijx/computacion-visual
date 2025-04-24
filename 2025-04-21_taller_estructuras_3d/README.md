@@ -19,3 +19,7 @@ npm install three @react-three/fiber @react-three/drei three-stdlib
 Los talleres 1 al 5 se toman con la fecha de hoy: 21/04/2025
 La fecha de los talleres es la fecha de cuando se puso.
 
+
+
+
+Modelo obtenido en: https://www.fab.com/listings/2ef5089c-69b6-4152-879b-896dfb21dfd6
