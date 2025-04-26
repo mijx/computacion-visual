@@ -5,9 +5,10 @@ import { useRef } from 'react'
 function Scene() {
   const groupRef = useRef()
 
-  // Slider de leva para rotación en Y
-  const { rotationY } = useControls({
-    rotationY: { value: 0, min: -Math.PI, max: Math.PI, step: 0.01 }
+  // Sliders de leva para rotación en Y y posición en Y
+  const { rotationY, positionY } = useControls({
+    rotationY: { value: 0, min: -Math.PI, max: Math.PI, step: 0.01 },
+    positionY: { value: 0, min: -5, max: 5, step: 0.1 }
   })
 
   return (
@@ -17,7 +18,7 @@ function Scene() {
       <pointLight position={[5, 5, 5]} intensity={2} />
 
       {/* Nodo padre */}
-      <group ref={groupRef} rotation={[0, rotationY, 0]}>
+      <group ref={groupRef} rotation={[0, rotationY, 0]} position={[0, positionY, 0]}>
         {/* Hijo 1 */}
         <mesh position={[-2, 0, 0]}>
           <boxGeometry args={[1, 1, 1]} />
