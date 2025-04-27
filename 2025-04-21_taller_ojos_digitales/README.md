@@ -7,6 +7,7 @@
 Se implementaron varios filtros de procesamiento de imágenes usando OpenCV y Numpy en Python. Se aplicaron transformaciones como escala de grises, desenfoque (blur), cambio de color, enfoque (sharpen), y detección de bordes mediante los filtros de Sobel y Laplaciano.
 
 La imagen sobre la cual se trabajó fue:
+
 <img src="python\taller3\img\aurora.png" width="50%" />
 
 #### Filtro Escala de grises
