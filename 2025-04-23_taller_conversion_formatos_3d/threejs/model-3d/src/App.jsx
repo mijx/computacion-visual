@@ -7,7 +7,8 @@ import './App.css'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import MouseGLB from './MouseGLB.jsx'
-import Shark from './Shark.jsx'
+import SharkGLB from './SharkGLB.jsx'
+import SharkGLTF from './SharkGLTF.jsx'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -20,7 +21,8 @@ function App() {
         <ambientLight intensity={1.8} />
         <OrbitControls />
         <Suspense fallback={null}>
-          <Shark scale={1} position={[0, 20, 0]} rotation={[0, -0.5*Math.PI, 0]}/>
+          {/* <SharkGLB scale={1} position={[0, 20, 0]} rotation={[0, -0.5*Math.PI, 0]}/> */}
+          <SharkGLTF scale={1} position={[0, 20, 0]} rotation={[0, -0.5*Math.PI, 0]}/>
         </Suspense>
       </Canvas>
     </>
