@@ -49,7 +49,7 @@ A lo largo de la immplementación, se recurrió al apoyo de herramientas LLM, re
      Número de caras: 6112
      Número de aristas: 18336
 
-La implementación en Python consistió en la carga y visualización de un modelo 3D en formato `.glb` utilizando las librerías `trimesh` y `open3d`.
+La implementación en Python consistió en la carga y visualización de un modelo 3D en formato `.glb` utilizando las librerías `trimesh` y `open3d`. El modelo (Burger lowpoly) fue obtenido de [Fab](https://www.fab.com/listings/e4579c6c-2e83-460e-8295-621c843852d5).
 
 Primero, se cargó el archivo usando `trimesh`, que permite manipular tanto escenas como mallas individuales. En caso de que el archivo contuviera múltiples objetos, se unificaron usando `trimesh.util.concatenate`.
 
