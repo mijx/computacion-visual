@@ -14,7 +14,7 @@ export default function App() {
   const objectControls = objects.map((obj, index) =>
     useControls(`Object ${index + 1}`, {
       rotationY: { value: obj.rotation[1], min: -Math.PI, max: Math.PI, step: 0.01 },
-      scale: { value: obj.scale, min: 0.1, max: 3, step: 0.1 },
+      scale: { value: obj.scale, min: 1, max: 5, step: 0.1 },
     })
   )
 
