@@ -32,3 +32,47 @@ A lo largo de la immplementación, se recurrió al apoyo de herramientas LLM, re
 * Configuración de la escena y control de cámara.
 * Manejo de errores de importación y buenas prácticas para organizar los archivos del proyecto.
 * Estilización de la visualización mediante CSS.
+
+## Python
+[Enlace a la implementación en el repositorio](https://github.com/mijx/computacion-visual/tree/main/2025-04-21_taller_estructuras_3d/python)
+
+### Resumen de la implementación
+
+<img src="python\resultado\PythonMuestra1.gif" width="50%" />
+
+<img src="python\resultado\PythonMuestra2.gif" width="50%" />
+
+*Salida del terminal:*
+
+     Modelo cargado:
+     Número de vértices: 3549
+     Número de caras: 6112
+     Número de aristas: 18336
+
+La implementación en Python consistió en la carga y visualización de un modelo 3D en formato `.glb` utilizando las librerías `trimesh` y `open3d`.
+
+Primero, se cargó el archivo usando `trimesh`, que permite manipular tanto escenas como mallas individuales. En caso de que el archivo contuviera múltiples objetos, se unificaron usando `trimesh.util.concatenate`.
+
+Luego, los datos de vértices y caras se transformaron en una malla compatible con Open3D para poder visualizarla. Se calcularon las normales de los vértices para mejorar la iluminación de la malla. Finalmente, se mostró la geometría en una ventana interactiva donde se pueden usar controles de orbitación con el mouse.
+
+### Descripción de los prompts
+
+Durante el desarrollo se utilizaron herramientas LLM para consultar y resolver:
+* Cómo cargar un archivo `.glb` desde una ruta relativa correctamente.
+* Qué hacer cuando `open3d` no visualizaba colores o el modelo parecía estar vacío.
+* Cómo convertir una `trimesh.Scene` a una única malla para visualizarla en Open3D.
+* Cómo mostrar estadísticas como número de vértices, caras y aristas en consola.
+
+### Dificultades presentadas
+
+* El modelo no se cargaba al principio porque la ruta usada no coincidía con el directorio de ejecución. Se solucionó utilizando `os.path.abspath(__file__)` para construir rutas absolutas.
+* `open3d` no reconocía los colores directamente desde el archivo `.glb`, ya que solo se importaban vértices y caras. Se intentaron varias estrategias para recuperar los colores, pero finalmente se optó por visualizar la malla sin texturas.
+* La malla no se mostraba cuando el archivo estaba vacío o mal convertido; también surgió un error al acceder a `vertex_colors` en un objeto de tipo `TextureVisuals`.
+
+### Aprendizajes aprendidos
+
+* Uso combinado de `trimesh` y `open3d` para cargar y visualizar modelos 3D.
+* Transformación de escenas en mallas para simplificar la visualización.
+* Visualización básica interactiva con Open3D y cálculo de normales.
+* Manejo de rutas relativas/absolutas en Python para asegurar portabilidad del código.
+* Recuperación e impresión de información estructural de un modelo: número de vértices, caras y aristas.
