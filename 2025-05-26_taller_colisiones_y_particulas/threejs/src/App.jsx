@@ -1,9 +1,19 @@
 import { Physics, usePlane, useSphere } from '@react-three/cannon'
 import { OrbitControls } from '@react-three/drei'
-import React from 'react'
+import React, { useState } from 'react'
+
+// Crear un material físico con rebote
+const ballProps = {
+  mass: 1,
+  args: [0.5],
+  material: { restitution: 0.8 }, // rebote
+}
 
 function Floor() {
-  const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0] }))
+  const [ref] = usePlane(() => ({
+    rotation: [-Math.PI / 2, 0, 0],
+    material: { restitution: 0.8 }, // rebote en el suelo también
+  }))
   return (
     <mesh ref={ref} receiveShadow>
       <planeGeometry args={[100, 100]} />
@@ -12,12 +22,16 @@ function Floor() {
   )
 }
 
-function Ball({ position, color }) {
+function Ball({ position }) {
+  const [color, setColor] = useState('white')
   const [ref] = useSphere(() => ({
-    mass: 1,
+    ...ballProps,
     position,
-    args: [0.5],
+    onCollide: () => {
+      setColor('hotpink') // cambia color al colisionar
+    },
   }))
+
   return (
     <mesh ref={ref} castShadow>
       <sphereGeometry args={[0.5, 32, 32]} />
@@ -27,7 +41,6 @@ function Ball({ position, color }) {
 }
 
 export default function App() {
-  // Posición inicial común para todas las bolas
   const startPosition = [0, 5, 0]
 
   return (
@@ -46,7 +59,6 @@ export default function App() {
           <Ball
             key={i}
             position={[startPosition[0], startPosition[1] + i * 0.5, startPosition[2]]}
-            color={`hsl(${i * 60}, 80%, 60%)`}
           />
         ))}
       </Physics>
