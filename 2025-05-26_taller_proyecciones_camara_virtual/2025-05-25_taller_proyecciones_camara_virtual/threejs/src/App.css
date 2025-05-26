@@ -1,0 +1,47 @@
+#root {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Para evitar scrollbars por Leva */
+}
+
+#canvas-container {
+  width: 100%;
+  height: 100%;
+}
+
+.hud-text {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 8px;
+  font-family: 'Arial', sans-serif;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-align: center;
+  pointer-events: none; /* Para que no interfiera con OrbitControls */
+  z-index: 100;
+  white-space: nowrap;
+}
+
+/* Estilos de Leva (opcional, para asegurar que se vea bien) */
+:root {
+  --leva-sizes-controlWidth: 150px; /* Ajusta el ancho de los controles de Leva si es necesario */
+  --leva-colors-accent1: #007bff;
+  --leva-colors-accent2: #0069d9;
+  --leva-colors-accent3: #005cbf;
+  --leva-colors-highlight1: #343a40;
+  --leva-colors-highlight2: #495057;
+  --leva-colors-highlight3: #6c757d;
+  --leva-colors-vivid1: #007bff; 
+}
+
+/* Sobrescribir cualquier estilo que pueda estar afectando negativamente a Leva o al HUD */
+body {
+  margin: 0; /* Asegurarse de que no haya márgenes inesperados */
+}
