@@ -80,7 +80,7 @@ El sistema reacciona en tiempo real al movimiento de la cámara y un cuadrado di
 - Rotar: si se dice "rotar" y se muestra el puño cerrado.
 - Mostrar u ocultar: diciendo el comando mientras se hace una V con los dedos de una mano.
 
-![resultado.gif](resultados/demo_camara_y_voz.gif)
+![resultado.gif](resultado/demo_camara_y_voz.gif)
 
 ---
 
