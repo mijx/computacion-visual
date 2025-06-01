@@ -1,0 +1,52 @@
+.camera-ui-panel {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 280px;
+  background: rgba(25, 25, 25, 0.75);
+  backdrop-filter: blur(10px);
+  padding: 24px 30px;
+  border-radius: 12px;
+  color: #f0f0f0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  z-index: 10000;
+  user-select: none;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.camera-ui-button {
+  width: 100%;
+  padding: 14px 0;
+  background: #1e90ff;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 18px;
+  margin-bottom: 22px;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 4px 12px rgba(30,144,255,0.5);
+}
+
+.camera-ui-button:hover {
+  background: #1c86ee;
+}
+
+.camera-ui-label {
+  font-size: 16px;
+  margin-bottom: 14px;
+  display: block;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.camera-ui-slider {
+  width: 100%;
+  margin-bottom: 24px;
+  cursor: pointer;
+  accent-color: #1e90ff;
+  height: 10px;
+  border-radius: 6px;
+}
