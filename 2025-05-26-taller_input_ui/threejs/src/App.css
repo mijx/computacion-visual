@@ -1,0 +1,62 @@
+/* App.css - versión compacta del panel */
+
+.ui-panel {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(30, 30, 30, 0.85);
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+  user-select: none;
+  width: 160px;       /* ancho reducido */
+  font-size: 0.85rem; /* tamaño de fuente reducido */
+  z-index: 100;
+}
+
+.ui-panel h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.ui-panel label {
+  display: block;
+  margin-top: 8px;
+  margin-bottom: 3px;
+}
+
+.ui-panel button {
+  width: 100%;
+  padding: 6px 0;
+  margin-top: 10px;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.ui-panel button:hover {
+  background-color: #45a049;
+}
+
+.ui-panel input[type="range"] {
+  width: 100%;
+}
+
+.ui-panel input[type="color"] {
+  width: 100%;
+  height: 28px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
