@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller AR - Marcianito</title>
+    <!-- Solo Three.js -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+    <!-- GLTFLoader para cargar el marcianito -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #000;
+        }
+        
+        /* Video de cámara como fondo */
+        #camera-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: 1;
+        }
+        
+        /* Canvas de Three.js superpuesto */
+        #threejs-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        #status {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            z-index: 9999;
+            font-size: 14px;
+        }
+        
+        /* Botón para mostrar marcianito */
+        .show-button {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 9999;
+        }
+        
+        .show-button:hover {
+            background: #218838;
+            transform: translateX(-50%) scale(1.05);
+        }
+        
+        .show-button.active {
+            background: #dc3545;
+        }
+        
+        .show-button.active:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <!-- Video de cámara como fondo -->
+    <video id="camera-video" autoplay muted playsinline></video>
+    
+    <!-- Canvas de Three.js para el marcianito -->
+    <canvas id="threejs-canvas"></canvas>
+    
+    <!-- Estado -->
+    <div id="status">🎥 Iniciando...</div>
+    
+    <!-- Botón principal -->
+    <button class="show-button" id="toggleBtn" onclick="toggleMarcianito()">
+        👽 Mostrar Marcianito
+    </button>
+
+    <script>
+        // Variables globales
+        const statusEl = document.querySelector('#status');
+        const toggleBtn = document.querySelector('#toggleBtn');
+        let scene, camera, renderer, marcianito;
+        let isMarcianitoVisible = false;
+        let animationId;
+        
+        // Función para actualizar estado
+        function updateStatus(message) {
+            statusEl.textContent = message;
+            console.log(message);
+        }
+
+        // Inicialización
+        window.addEventListener('load', () => {
+            updateStatus('🚀 Iniciando...');
+            setTimeout(() => {
+                initializeCamera();
+                initializeThreeJS();
+            }, 500);
+        });
+
+        // Inicializar cámara de forma simple
+        async function initializeCamera() {
+            try {
+                updateStatus('📹 Activando cámara...');
+                
+                const video = document.getElementById('camera-video');
+                
+                // Configuración simple que funciona en la mayoría de casos
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1280, min: 640 },
+                        height: { ideal: 720, min: 480 },
+                        facingMode: { ideal: 'environment', fallback: 'user' }
+                    }
+                });
+                
+                video.srcObject = stream;
+                
+                video.onloadedmetadata = () => {
+                    updateStatus('✅ Cámara activa');
+                    console.log('Cámara:', video.videoWidth + 'x' + video.videoHeight);
+                };
+                
+            } catch (error) {
+                console.error('Error de cámara:', error);
+                updateStatus('⚠️ Sin cámara - Solo 3D');
+                
+                // Intentar sin restricciones
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    document.getElementById('camera-video').srcObject = stream;
+                    updateStatus('✅ Cámara básica activa');
+                } catch (e) {
+                    console.error('Error total de cámara:', e);
+                }
+            }
+        }
+
+        // Inicializar Three.js
+        function initializeThreeJS() {
+            const canvas = document.getElementById('threejs-canvas');
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            // Escena
+            scene = new THREE.Scene();
+
+            // Cámara
+            camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+            camera.position.set(0, 0, 2);
+
+            // Renderer con fondo transparente
+            renderer = new THREE.WebGLRenderer({ 
+                canvas: canvas, 
+                alpha: true, 
+                antialias: true 
+            });
+            renderer.setSize(width, height);
+            renderer.setClearColor(0x000000, 0);
+
+            // Iluminación
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(2, 2, 2);
+            scene.add(directionalLight);
+
+            // Cargar marcianito
+            loadMarcianito();
+
+            // Iniciar renderizado
+            animate();
+        }
+
+        // Cargar modelo del marcianito
+        function loadMarcianito() {
+            const loader = new THREE.GLTFLoader();
+            
+            updateStatus('📦 Cargando marcianito...');
+            
+            loader.load(
+                'models/marcianito.glb',
+                (gltf) => {
+                    marcianito = gltf.scene;
+                    
+                    // Configurar modelo - CENTRADO Y GRANDE
+                    marcianito.scale.set(1.5, 1.5, 1.5); // Más grande
+                    marcianito.position.set(0, 0, 0);     // Centrado
+                    marcianito.visible = false;
+                    
+                    scene.add(marcianito);
+                    
+                    updateStatus('✅ Listo - Presiona el botón');
+                },
+                (progress) => {
+                    const percent = Math.round((progress.loaded / progress.total) * 100);
+                    updateStatus(`📦 Cargando... ${percent}%`);
+                },
+                (error) => {
+                    console.error('Error cargando marcianito:', error);
+                    updateStatus('❌ Error cargando modelo');
+                    
+                    // Crear cubo verde de respaldo
+                    const geometry = new THREE.BoxGeometry(1, 1, 1);
+                    const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+                    marcianito = new THREE.Mesh(geometry, material);
+                    marcianito.position.set(0, 0, 0);
+                    marcianito.visible = false;
+                    scene.add(marcianito);
+                    
+                    updateStatus('✅ Marcianito básico listo');
+                }
+            );
+        }
+
+        // Bucle de animación
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+
+            // Rotación suave del marcianito
+            if (marcianito && isMarcianitoVisible) {
+                marcianito.rotation.y += 0.01;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Función principal: Mostrar/Ocultar Marcianito
+        function toggleMarcianito() {
+            if (!marcianito) {
+                updateStatus('⚠️ Marcianito no cargado aún');
+                return;
+            }
+
+            isMarcianitoVisible = !isMarcianitoVisible;
+            marcianito.visible = isMarcianitoVisible;
+            
+            if (isMarcianitoVisible) {
+                toggleBtn.textContent = '👻 Ocultar Marcianito';
+                toggleBtn.classList.add('active');
+                updateStatus('👽 ¡Marcianito visible!');
+                
+                // Efecto de aparición
+                marcianito.scale.set(0, 0, 0);
+                animateScale(marcianito, { x: 1.5, y: 1.5, z: 1.5 }, 600);
+            } else {
+                toggleBtn.textContent = '👽 Mostrar Marcianito';
+                toggleBtn.classList.remove('active');
+                updateStatus('👻 Marcianito oculto');
+            }
+        }
+
+        // Animación de escala suave
+        function animateScale(object, targetScale, duration) {
+            const startScale = { x: 0, y: 0, z: 0 };
+            const startTime = Date.now();
+            
+            function updateScale() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing suave
+                const eased = 1 - Math.pow(1 - progress, 3);
+                
+                object.scale.set(
+                    startScale.x + (targetScale.x - startScale.x) * eased,
+                    startScale.y + (targetScale.y - startScale.y) * eased,
+                    startScale.z + (targetScale.z - startScale.z) * eased
+                );
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateScale);
+                }
+            }
+            
+            updateScale();
+        }
+
+        // Control con barra espaciadora
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                toggleMarcianito();
+            }
+        });
+
+        // Redimensionamiento
+        window.addEventListener('resize', () => {
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        });
+
+        // Debug
+        console.log('🔍 AR Marcianito iniciado');
+        console.log('URL:', window.location.href);
+        console.log('Cámara disponible:', !!navigator.mediaDevices);
+    </script>
+</body>
+</html> 
