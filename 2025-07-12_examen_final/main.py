@@ -32,10 +32,12 @@ last_thumbs_up_time = 0
 thumbs_cooldown = 2
 photo_with_rect = None
 rect = None
+filtro = "normal"
 
 take_photo_cooldown = 3  # segundos de espera antes de capturar
 photo_taken_time = 0
 
+# ------------------------- Funciones de las secciones del programa -------------------------
 def get_rectangle_from_two_hands(hand_landmarks_list, image_width, image_height):
     """
     Dado landmarks de dos manos, retorna un rectángulo que encierra
@@ -170,6 +172,89 @@ def draw_rectangle_on_image_pixels(image, x1, y1, x2, y2, color=(0, 255, 0), thi
     image[y1:y2, x1:x1+thickness] = color  # Línea izquierda
     image[y1:y2, x2-thickness:x2] = color  # Línea derecha
 
+
+# --------------------- filtros de imagen ---------------------
+def contar_dedos_landmarks(landmarks):
+    if len(landmarks) != 1:
+        print("Debe haber exactamente una mano detectada.")
+        return None
+
+    # Extraer landmarks de la mano
+    hand = landmarks[0].landmark
+
+    dedos_levantados = 0
+
+    # Dedos: índice, medio, anular, meñique
+    dedos_ids = [8, 12, 16, 20]      # Puntas de los dedos
+    nudillos_ids = [6, 10, 14, 18]   # Articulaciones inferiores
+
+    for dedo, nudillo in zip(dedos_ids, nudillos_ids):
+        if hand[dedo].y < hand[nudillo].y:
+            dedos_levantados += 1
+
+    return dedos_levantados
+
+# Filtro game boy
+def quantize(img, palette):
+    img = img.astype(np.float32)
+    result = np.zeros_like(img)
+    for y in range(img.shape[0]):
+        for x in range(img.shape[1]):
+            pixel = img[y, x]
+            distances = [np.linalg.norm(pixel - np.array(c)) for c in palette]
+            nearest_color = palette[np.argmin(distances)]
+            result[y, x] = nearest_color
+    return result.astype(np.uint8)
+def apply_gameboy_filter(frame):
+    palette = [(15, 56, 15), (48, 98, 48), (139, 172, 15), (155, 188, 15)]
+
+    scale = 0.1
+    small = cv2.resize(frame, (0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
+    quantized = quantize(small, palette)
+    result = cv2.resize(quantized, (frame.shape[1], frame.shape[0]), interpolation=cv2.INTER_NEAREST)
+    return result
+
+# Filtro edges
+def apply_edges_filter(frame):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    edges = cv2.Canny(gray, 50, 150)
+    return cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+
+# Filtro ascii
+def apply_ascii_filter(frame):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    # Caracteres de más claro a más oscuro
+    chars = np.asarray(list(" .:-=+*#%@"))
+    scale = 0.1
+    small = cv2.resize(gray, (0, 0), fx=scale, fy=scale)
+    h, w = small.shape
+
+    ascii_img = np.zeros((h * 12, w * 8, 3), dtype=np.uint8)  # cada carácter ~8x12 px
+    for y in range(h):
+        for x in range(w):
+            pixel = small[y, x]
+            idx = int(pixel / 255 * (len(chars) - 1))
+            char = chars[idx]
+
+            cv2.putText(ascii_img, char, (x * 8, y * 12 + 10), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
+
+    return ascii_img
+
+
+
+
+
+
+
+
+
+
+
+
+
+# --------------------- Programa principal ---------------------
+
 # Cámara
 cap = cv2.VideoCapture(0)
 
@@ -202,8 +287,9 @@ while True:
         if mode == "inicio":
             cv2.putText(frame, "Pulgar arriba para tomar foto", (50, 50),
                 cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2)
-            # Dibuja la(s) mano(s) detectada(s)
+            
             if results_hands.multi_hand_landmarks:
+                # Revisar si tomar foto                
                 for hand_landmarks in results_hands.multi_hand_landmarks:
                     thumb_gesture = detect_thumb_gesture(hand_landmarks)
                     if thumb_gesture == "up":
@@ -211,10 +297,34 @@ while True:
                         photo_taken_time = time.time()
                         mode = "tomando"
                         break
-                    
+                    else:
+                        # Revisar si cambiar el filtro de la imagen
+                        dedos_arriba = contar_dedos_landmarks(results_hands.multi_hand_landmarks)
+                        if dedos_arriba == 1:
+                            filtro = "normal"
+                        elif dedos_arriba == 2:
+                            filtro = "gameboy"
+                        elif dedos_arriba == 3:
+                            filtro = "ascii"
+                        elif dedos_arriba == 4:
+                            filtro = "edges"
+            
+            if filtro == "gameboy":
+                frame = apply_gameboy_filter(frame)
+            if filtro == "ascii":
+                frame = apply_ascii_filter(frame)
+            if filtro == "edges":
+                frame = apply_edges_filter(frame)
             cv2.imshow("Interacción Visual", frame)
         # --- Modo TOMANDO FOTO ---
         elif mode == "tomando":
+            if filtro == "gameboy":
+                frame = apply_gameboy_filter(frame)
+            if filtro == "ascii":
+                frame = apply_ascii_filter(frame)
+            if filtro == "edges":
+                frame = apply_edges_filter(frame)
+
             elapsed = time.time() - photo_taken_time
             countdown = take_photo_cooldown - int(elapsed)
             if countdown > 0:
@@ -318,7 +428,7 @@ while True:
                                        cv2.BORDER_CONSTANT, value=(0, 0, 0))
             combined = np.hstack((frame, rotated_photo))
             cv2.putText(combined, "Inclina cabeza para rotar foto", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 2)
-            cv2.putText(combined, "Pulgar arriba para continuar", (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 2)
+            cv2.putText(combined, "Pulgar arriba para guardar", (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 2)
             cv2.imshow("Interacción Visual", combined)
             key = cv2.waitKey(1) & 0xFF
             if key == 27:
