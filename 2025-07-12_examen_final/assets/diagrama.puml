@@ -1,0 +1,75 @@
+@startuml
+start
+
+:Iniciar captura de cámara;
+:Leer frame y convertir a RGB;
+:Detectar rostro y manos;
+
+if (¿Hay una cara detectada?) then (sí)
+    :Actualizar historial de centro de cara;
+    :Calcular inclinación de cabeza;
+    
+    if (modo == "inicio") then (sí)
+        :Mostrar texto: "Pulgar arriba para tomar foto";
+        if (¿Hay manos detectadas?) then (sí)
+            :Detectar gesto de pulgar;
+            if (Pulgar arriba?) then (sí)
+                :Guardar tiempo de captura;
+                :Cambiar a modo "tomando";
+            else
+                :Contar dedos levantados;
+                :Seleccionar filtro según número de dedos;
+            endif
+        endif
+        :Aplicar filtro seleccionado;
+        :Mostrar imagen con filtro;
+    elseif (modo == "tomando")
+        :Aplicar filtro seleccionado;
+        :Mostrar cuenta regresiva;
+        if (Tiempo transcurrido >= cooldown) then (sí)
+            :Guardar foto capturada;
+            :Cambiar a modo "confirmar";
+        endif
+    elseif (modo == "confirmar")
+        :Mostrar comparación cámara / foto;
+        if (Pulgar arriba?) then (sí)
+            :Cambiar a modo "recortar_foto";
+        elseif (Pulgar abajo?) then (sí)
+            :Cancelar foto;
+            :Volver a modo "inicio";
+        endif
+    elseif (modo == "recortar_foto")
+        if (Se detecta asentir con cabeza?) then (sí)
+            :Recortar imagen dentro del marco;
+            :Cambiar a modo "rotar_foto";
+        else
+            if (Dos manos detectadas?) then (sí)
+                :Calcular rectángulo con ambas manos;
+                :Dibujar rectángulo en foto y cámara;
+            endif
+        endif
+        :Mostrar imagen con guía de recorte;
+    elseif (modo == "rotar_foto")
+        if (Cabeza inclinada?) then (sí)
+            :Actualizar ángulo de rotación;
+        endif
+        if (Pulgar arriba?) then (sí)
+            :Aplicar rotación;
+            :Guardar imagen final;
+            :Mostrar imagen final;
+            stop
+        endif
+        :Mostrar imagen rotada;
+    endif
+endif
+
+if (Tecla 'r' presionada) then (sí)
+    :Resetear estado;
+    :Volver a modo "inicio";
+endif
+
+if (Tecla ESC presionada) then (sí)
+    stop
+endif
+
+@enduml
